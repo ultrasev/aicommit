@@ -5,7 +5,9 @@ import subprocess
 import json
 from openai import OpenAI
 from loguru import logger
+from dotenv import load_dotenv
 
+load_dotenv()
 
 PROMPT_TEMPLATE = '''
 根据下面 `git diff` 的输出，选择合适的提交类型，并用一句英文描述相应的变化。
@@ -55,18 +57,6 @@ class CommitGenerator(object):
         )['choices'][0]['message']['content']
 
 
-class CommitGeneratorV2(object):
-    def __init__(self, diff: str):
-        self.diff = diff
-
-    def __str__(self) -> str:
-        from airapper import chat
-        return chat(
-            PROMPT_TEMPLATE.format(self.diff),
-            model='gpt4'
-        )
-
-
 class NoChangesException(Exception):
     pass
 
@@ -92,7 +82,7 @@ class AICommitter(object):
     def run(self) -> bool:
         logger.info("git diff is: \n {}\n...\n".format(self.diff[:500]))
         while True:
-            message = str(CommitGeneratorV2(self.diff))
+            message = str(CommitGenerator(self.diff))
             choices = self.format(message)
             s = '\n'.join([f'{i+1}. {c}' for i, c in enumerate(choices)])
             logger.info(f'Suggested commit information:\n{s}')
