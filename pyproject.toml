@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "smartcommit"
+version = "0.0.1"
+description = ""
+authors = ["ultrasev <i@ultrasev.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+openai = "^1.32.0"
+loguru = "^0.7.2"
+
+
+[tool.poetry.scripts]
+smartcommit = "smartcommit.commit:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
