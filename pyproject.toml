@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "smartcommit"
+name = "aicommit"
 version = "0.0.1"
 description = ""
 authors = ["ultrasev <i@ultrasev.com>"]
@@ -12,7 +12,7 @@ loguru = "^0.7.2"
 
 
 [tool.poetry.scripts]
-smartcommit = "smartcommit.commit:main"
+aicommit= "aicommit.commit:main"
 
 [build-system]
 requires = ["poetry-core"]
