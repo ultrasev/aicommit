@@ -87,6 +87,17 @@ class CommitGenerator(object):
         return resp.choices[0].message.content
 
 
+class CommitGeneratorV2(object):
+    def __init__(self, diff: str):
+        self.diff = diff
+
+    def __str__(self) -> str:
+        from airapper import chat
+        return chat(
+            PROMPT_TEMPLATE.format(self.diff)
+        )
+
+
 class NoChangesException(Exception):
     pass
 
@@ -122,7 +133,7 @@ class AICommitter(object):
 
     def run(self) -> bool:
         logger.info("git diff is: \n {}\n...\n".format(self.diff[:500]))
-        message = str(CommitGenerator(self.diff))
+        message = str(CommitGeneratorV2(self.diff))
         choices = self.get_choices(message)
         self.print_rich_hint(choices)
 
