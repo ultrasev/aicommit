@@ -9,9 +9,7 @@ import subprocess
 import json
 from openai import OpenAI
 from loguru import logger
-from dotenv import load_dotenv
 
-load_dotenv()
 console = Console()
 
 PROMPT_TEMPLATE = '''
@@ -51,10 +49,27 @@ def shell(command: str) -> str:
     return subprocess.check_output(command, shell=True).decode('utf-8')
 
 
+class APIKeyReader(object):
+    def __str__(self):
+        key_name = 'OPENAI_API_KEY'
+        api_key_file = os.path.expanduser('~/.openai_api_key')
+        if not os.path.exists(api_key_file):
+            api_key = input("Please enter your OpenAI API key: ")
+            with open(api_key_file, 'w') as f:
+                f.write(f"{key_name}={api_key}\n")
+            return api_key
+        else:
+            with open(api_key_file) as f:
+                for line in f:
+                    if line.startswith(key_name):
+                        key = line.strip().split('=')[1].strip("'").strip('"')
+                        return key
+
+
 class CommitGenerator(object):
     def __init__(self, diff: str):
         self.diff = diff
-        self.client = OpenAI(api_key=os.environ['OPENAI_API_KEY'])
+        self.client = OpenAI(api_key=APIKeyReader())
 
     def __str__(self) -> str:
         resp = self.client.chat.completions.create(
