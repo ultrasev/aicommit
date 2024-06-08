@@ -99,7 +99,7 @@ class AICommitter(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
-    def get_choices(self, message: str) -> str:
+    def get_choices(self, message: str) -> typing.List[str]:
         message = re.sub(r'^.*?```json\n(.*?)\n```.*$',
                          r'\1', message, flags=re.DOTALL)
         js = json.loads(message).values()
@@ -121,6 +121,7 @@ class AICommitter(object):
         message = str(CommitGenerator(self.diff))
         choices = self.get_choices(message)
         self.print_rich_hint(choices)
+
         answer = input('\nWhich one do you prefer? Or 0 to abort: ')
         if answer == '0':
             logger.info('Commit aborted')

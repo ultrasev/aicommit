@@ -16,11 +16,12 @@ pip3 install git+https://github.com/ultrasev/aicommit
 
 在 git 仓库中运行，通过 `git add xxx` 后执行 `aicommit` 命令，即可生成提交信息。
 
-使用前需要配置 OpenAI API 密钥，将密钥放到 `.env` 文件中。示例
+使用前需要配置 OpenAI API 密钥，将密钥放到 `~/.openai_api_key` 文件中。示例
 
 ```bash
-OPENAI_API_KEY=your-api-key
+echo 'OPENAI_API_KEY=your-api-key' > ~/.openai_api_key
 ```
 
 ## TODO
+
 - [ ] 变更过多时，自动分批提交

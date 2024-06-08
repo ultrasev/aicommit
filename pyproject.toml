@@ -9,7 +9,6 @@ readme = "README.md"
 python = "^3.8"
 openai = "^1.32.0"
 loguru = "^0.7.2"
-python-dotenv = "^1.0.1"
 rich = "^13.7.1"
 
 
