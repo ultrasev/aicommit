@@ -44,6 +44,10 @@ git diff 输出：
 ```
 '''
 
+SYSTEM_PROMPT = '''You are a professional coding coach with extensive expertise in using Git for version control.
+You have a strong background in teaching and guiding others in best coding practices, ensuring efficient collaboration and code management.
+Your proficiency in Git includes branching, merging, resolving conflicts, and leveraging advanced features to optimize workflow.'''
+
 
 def shell(command: str) -> str:
     return subprocess.check_output(command, shell=True).decode('utf-8')
@@ -75,7 +79,7 @@ class CommitGenerator(object):
         resp = self.client.chat.completions.create(
             model='gpt-3.5-turbo',
             messages=[
-                {'role': 'assistant', 'content': 'You are a helpful assistant.'},
+                {'role': 'assistant', 'content': SYSTEM_PROMPT},
                 {'role': 'user', 'content': PROMPT_TEMPLATE.format(
                     self.diff)},
             ]
