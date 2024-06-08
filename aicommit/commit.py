@@ -96,7 +96,6 @@ class AICommitter(object):
             "bright_black", "bright_red", "bright_green", "bright_yellow",
             "bright_blue", "bright_magenta", "bright_cyan", "bright_white"
         ]
-        colored_choices = []
         for i, c in enumerate(choices):
             color = random.choice(rich_colors)
             text = Text(f'{i+1}. {c}', style=color)

@@ -2,7 +2,7 @@ Git 提交信息自动生成器
 
 根据 git 仓库中检测到的更改，使用 GPT 自动生成合适的提交信息。
 
-![image](https://github.com/ultrasev/aicommit/assets/51262739/df5e318e-d6de-4915-ad0c-74c37798c57b)
+![image](https://github.com/ultrasev/aicommit/assets/51262739/601afec0-b0cb-4ab7-b36a-cb274247169c)
 
 ## 功能
 
