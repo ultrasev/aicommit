@@ -1,10 +1,8 @@
-Git 提交信息生成器
+Git 提交信息自动生成器
 
 根据 git 仓库中检测到的更改，使用 GPT 自动生成合适的提交信息。
 
-<figure style="text-align: left; radius:10pt">
-    <img src="https://host.ddot.cc/tmp_output.gif" width="800" />
-</figure>
+![image](https://github.com/ultrasev/aicommit/assets/51262739/df5e318e-d6de-4915-ad0c-74c37798c57b)
 
 ## 功能
 
@@ -23,3 +21,6 @@ pip3 install git+https://github.com/ultrasev/aicommit
 ```bash
 OPENAI_API_KEY=your-api-key
 ```
+
+## TODO
+- [ ] 变更过多时，自动分批提交
