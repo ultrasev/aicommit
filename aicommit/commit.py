@@ -94,7 +94,7 @@ class CommitGeneratorV2(object):
     def __str__(self) -> str:
         from airapper import chat
         return chat(
-            PROMPT_TEMPLATE.format(self.diff)
+            PROMPT_TEMPLATE.format(self.diff[:16000])
         )
 
 
