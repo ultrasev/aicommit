@@ -1,6 +1,6 @@
-Git 提交信息自动生成器
+<h2 align="center" style="font-size: 22px">Git 提交信息自动生成器</h2>
 
-<img src="https://github.com/ultrasev/aicommit/assets/51262739/549d63da-c66b-400c-8a2b-4c26953d524a" width="789px">
+<img src="https://github.com/ultrasev/aicommit/assets/51262739/549d63da-c66b-400c-8a2b-4c26953d524a" width="789px" />
 
 根据 git 仓库中检测到的更改，使用 GPT 自动生成合适的提交信息。
 
@@ -16,13 +16,19 @@ Git 提交信息自动生成器
 pip3 install git+https://github.com/ultrasev/aicommit
 ```
 
-在 git 仓库中运行，通过 `git add xxx` 后执行 `aicommit` 命令，即可生成提交信息。
+在 git 仓库中
+
+1. `git add xxx` 添加更改
+2. 执行 `aicommit` 命令生成 5 条候选提交信息
+3. 选择一条最合适的提交信息，确定后自动执行 `git commit -m "your message"`。
 
 使用前需要配置 OpenAI API 密钥，将密钥放到 `~/.openai_api_key` 文件中。示例
 
 ```bash
 echo 'OPENAI_API_KEY=your-api-key' > ~/.openai_api_key
 ```
+
+结合 [llmproxy](https://github.com/ultrasev/llmproxy) 项目也可以使用 `Gemini` 或者 Grok 的 API。
 
 ## TODO
 
