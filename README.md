@@ -20,7 +20,7 @@ pip3 install git+https://github.com/ultrasev/aicommit
 
 1. `git add xxx` 添加更改
 2. 执行 `aicommit` 命令生成 5 条候选提交信息
-3. 选择一条最合适的提交信息，确定后自动执行 `git commit -m "your message"`。
+3. 根据 id 选择一条最合适的提交信息，确定后自动执行 `git commit -m "your message"`。
 
 使用前需要配置 OpenAI API 密钥，将密钥放到 `~/.openai_api_key` 文件中。示例
 
@@ -29,6 +29,11 @@ echo 'OPENAI_API_KEY=your-api-key' > ~/.openai_api_key
 ```
 
 结合 [llmproxy](https://github.com/ultrasev/llmproxy) 项目也可以使用 `Gemini` 或者 Grok 的 API。
+
+## 文档
+- Git commit 规范 [https://github.com/o-w-o/way/blob/master/appendixs/wiki/git-commit.md](https://github.com/o-w-o/way/blob/master/appendixs/wiki/git-commit.md)
+- OpenAI API 文档 [https://beta.openai.com/docs/api-reference](https://beta.openai.com/docs/api-reference)
+- 基于 cloudflare worker 的 LLM API 反向代理项目 [https://github.com/ultrasev/llmproxy](https://github.com/ultrasev/llmproxy)
 
 ## TODO
 
