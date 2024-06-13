@@ -38,3 +38,4 @@ echo 'OPENAI_API_KEY=your-api-key' > ~/.openai_api_key
 ## TODO
 
 - [ ] 变更过多时，自动分批提交
+- [ ] 支持过滤文件类型，只对特定文件类型生成提交信息

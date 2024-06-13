@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
+from yaspin.spinners import Spinners
 from rich.console import Console
 from rich.text import Text
+from yaspin import yaspin
 import random
 import typing
 import os
@@ -76,14 +78,15 @@ class CommitGenerator(object):
         self.client = OpenAI(api_key=APIKeyReader())
 
     def __str__(self) -> str:
-        resp = self.client.chat.completions.create(
-            model='gpt-3.5-turbo',
-            messages=[
-                {'role': 'assistant', 'content': SYSTEM_PROMPT},
-                {'role': 'user', 'content': PROMPT_TEMPLATE.format(
-                    self.diff)},
-            ]
-        )
+        with yaspin(Spinners.earth, text="Generating commit messages..."):
+            resp = self.client.chat.completions.create(
+                model='gpt-3.5-turbo',
+                messages=[
+                    {'role': 'assistant', 'content': SYSTEM_PROMPT},
+                    {'role': 'user',
+                        'content': PROMPT_TEMPLATE.format(self.diff)},
+                ]
+            )
         return resp.choices[0].message.content
 
 
