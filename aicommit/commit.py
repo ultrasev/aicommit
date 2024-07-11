@@ -13,7 +13,7 @@ from loguru import logger
 console = Console()
 
 PROMPT_TEMPLATE = '''
-根据下面 `git diff` 的输出，选择合适的提交类型，并用一句中文描述相应的变化。
+根据下面 `git diff` 的输出，选择合适的提交类型，并用一句英文描述相应的变化。
 
 提交类型可以是以下的选项之一：
 feat:     新功能（feature）
@@ -94,7 +94,7 @@ class CommitGeneratorV2(object):
     def __str__(self) -> str:
         from airapper import chat
         return chat(
-            PROMPT_TEMPLATE.format(self.diff[:16000])
+            PROMPT_TEMPLATE.format(self.diff[:16000]), model='gpt4'
         )
 
 
