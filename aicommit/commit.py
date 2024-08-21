@@ -92,9 +92,9 @@ class CommitGeneratorV2(object):
         self.diff = diff
 
     def __str__(self) -> str:
-        from airapper import chat
-        return chat(
-            PROMPT_TEMPLATE.format(self.diff[:16000]), model='gpt4'
+        from airapper import open_chat
+        return open_chat(
+            PROMPT_TEMPLATE.format(self.diff[:16000]), model='gpt-4o-mini-2024-07-18', stream=True
         )
 
 
