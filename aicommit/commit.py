@@ -93,8 +93,9 @@ class CommitGeneratorV2(object):
 
     def __str__(self) -> str:
         from airapper import chat
+        commit_mesage = PROMPT_TEMPLATE.format(self.diff[:130000])
         return chat(
-            PROMPT_TEMPLATE.format(self.diff[:16000]), model='geminipro', stream=True
+            commit_mesage, model='gpt4o', stream=True, history_length=0
         )
 
 
