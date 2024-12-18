@@ -34,8 +34,3 @@ echo 'OPENAI_API_KEY=your-api-key' > ~/.openai_api_key
 - Git commit 规范 [https://github.com/o-w-o/way/blob/master/appendixs/wiki/git-commit.md](https://github.com/o-w-o/way/blob/master/appendixs/wiki/git-commit.md)
 - OpenAI API 文档 [https://beta.openai.com/docs/api-reference](https://beta.openai.com/docs/api-reference)
 - 基于 cloudflare worker 的 LLM API 反向代理项目 [https://github.com/ultrasev/llmproxy](https://github.com/ultrasev/llmproxy)
-
-## TODO
-
-- [ ] 变更过多时，自动分批提交
-- [ ] 支持过滤文件类型，只对特定文件类型生成提交信息
