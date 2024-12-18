@@ -9,8 +9,10 @@ import os
 import re
 import subprocess
 import json
-from openai import OpenAI
 from loguru import logger
+from pydantic_ai.agent import Agent
+from dotenv import load_dotenv
+load_dotenv()
 
 console = Console()
 
@@ -74,20 +76,16 @@ class APIKeyReader(object):
 
 class CommitGenerator(object):
     def __init__(self, diff: str):
+        self.agent = Agent(
+            'gemini-1.5-flash'
+        )
         self.diff = diff
-        self.client = OpenAI(api_key=APIKeyReader())
 
     def __str__(self) -> str:
-        with yaspin(Spinners.earth, text="Generating commit messages..."):
-            resp = self.client.chat.completions.create(
-                model='gpt-3.5-turbo',
-                messages=[
-                    {'role': 'assistant', 'content': SYSTEM_PROMPT},
-                    {'role': 'user',
-                        'content': PROMPT_TEMPLATE.format(self.diff)},
-                ]
-            )
-        return resp.choices[0].message.content
+        query = PROMPT_TEMPLATE.format(self.diff)
+        return self.agent.run_sync(
+            query
+        ).data
 
 
 class NoChangesException(Exception):
@@ -133,7 +131,7 @@ class AICommitter(object):
         if answer == '0':
             logger.info('Commit aborted')
             return False
-        elif answer.isdigit() and int(answer) < len(choices):
+        elif answer.isdigit() and int(answer) <= len(choices):
             cmsg = choices[int(answer)-1]
             shell(f'git commit -m "{cmsg}"')
             return True
