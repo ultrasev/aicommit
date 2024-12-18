@@ -28,7 +28,7 @@ pip3 install git+https://github.com/ultrasev/aicommit
 echo 'OPENAI_API_KEY=your-api-key' > ~/.openai_api_key
 ```
 
-结合 [llmproxy](https://github.com/ultrasev/llmproxy) 项目也可以使用 `Gemini` 或者 Grok 的 API。
+代码使用了 [pydantic_ai](https://ai.pydantic.dev/) 框架，支持模型可参考 [pydantic_ai.models.KnownModelName](https://ai.pydantic.dev/api/models/base/#pydantic_ai.models.KnownModelName)。
 
 ## 文档
 - Git commit 规范 [https://github.com/o-w-o/way/blob/master/appendixs/wiki/git-commit.md](https://github.com/o-w-o/way/blob/master/appendixs/wiki/git-commit.md)
