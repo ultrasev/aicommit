@@ -7,9 +7,10 @@ import os
 import re
 import subprocess
 import json
-from openai import OpenAI
 from loguru import logger
 from pydantic_ai.agent import Agent
+from dotenv import load_dotenv
+load_dotenv()
 
 console = Console()
 
@@ -82,19 +83,7 @@ class CommitGenerator(object):
         query = PROMPT_TEMPLATE.format(self.diff)
         return self.agent.run_sync(
             query
-        )
-
-
-class CommitGeneratorV2(object):
-    def __init__(self, diff: str):
-        self.diff = diff
-
-    def __str__(self) -> str:
-        from airapper import chat
-        commit_mesage = PROMPT_TEMPLATE.format(self.diff[:130000])
-        return chat(
-            commit_mesage, model='gpt4o-mini', stream=True, history_length=0
-        )
+        ).data
 
 
 class NoChangesException(Exception):
