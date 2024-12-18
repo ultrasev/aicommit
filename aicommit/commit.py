@@ -10,7 +10,9 @@ import json
 from loguru import logger
 from pydantic_ai.agent import Agent
 from dotenv import load_dotenv
-load_dotenv("~/.openai_api_key")
+from pathlib import Path
+
+load_dotenv(Path.home() / ".openai_api_key")
 
 console = Console()
 
@@ -54,10 +56,11 @@ Your proficiency in Git includes branching, merging, resolving conflicts, and le
 def shell(command: str) -> str:
     return subprocess.check_output(command, shell=True).decode('utf-8')
 
+
 class CommitGenerator(object):
     def __init__(self, diff: str):
         self.agent = Agent(
-            'gemini-1.5-flash'
+            'gemini-2.0-flash-exp'
         )
         self.diff = diff
 
