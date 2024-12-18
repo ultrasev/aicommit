@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-from yaspin.spinners import Spinners
 from rich.console import Console
 from rich.text import Text
-from yaspin import yaspin
 import random
 import typing
 import os
@@ -12,7 +10,7 @@ import json
 from loguru import logger
 from pydantic_ai.agent import Agent
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv("~/.openai_api_key")
 
 console = Console()
 
@@ -55,24 +53,6 @@ Your proficiency in Git includes branching, merging, resolving conflicts, and le
 
 def shell(command: str) -> str:
     return subprocess.check_output(command, shell=True).decode('utf-8')
-
-
-class APIKeyReader(object):
-    def __str__(self):
-        key_name = 'OPENAI_API_KEY'
-        api_key_file = os.path.expanduser('~/.openai_api_key')
-        if not os.path.exists(api_key_file):
-            api_key = input("Please enter your OpenAI API key: ")
-            with open(api_key_file, 'w') as f:
-                f.write(f"{key_name}={api_key}\n")
-            return api_key
-        else:
-            with open(api_key_file) as f:
-                for line in f:
-                    if line.startswith(key_name):
-                        key = line.strip().split('=')[1].strip("'").strip('"')
-                        return key
-
 
 class CommitGenerator(object):
     def __init__(self, diff: str):
