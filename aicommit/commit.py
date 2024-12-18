@@ -9,6 +9,7 @@ import subprocess
 import json
 from openai import OpenAI
 from loguru import logger
+from pydantic_ai.agent import Agent
 
 console = Console()
 
@@ -72,19 +73,16 @@ class APIKeyReader(object):
 
 class CommitGenerator(object):
     def __init__(self, diff: str):
+        self.agent = Agent(
+            'gemini-1.5-flash'
+        )
         self.diff = diff
-        self.client = OpenAI(api_key=APIKeyReader())
 
     def __str__(self) -> str:
-        resp = self.client.chat.completions.create(
-            model='gpt-3.5-turbo',
-            messages=[
-                {'role': 'assistant', 'content': SYSTEM_PROMPT},
-                {'role': 'user', 'content': PROMPT_TEMPLATE.format(
-                    self.diff)},
-            ]
+        query = PROMPT_TEMPLATE.format(self.diff)
+        return self.agent.run_sync(
+            query
         )
-        return resp.choices[0].message.content
 
 
 class CommitGeneratorV2(object):
@@ -95,7 +93,7 @@ class CommitGeneratorV2(object):
         from airapper import chat
         commit_mesage = PROMPT_TEMPLATE.format(self.diff[:130000])
         return chat(
-            commit_mesage, model='gpt4o', stream=True, history_length=0
+            commit_mesage, model='gpt4o-mini', stream=True, history_length=0
         )
 
 
@@ -134,7 +132,7 @@ class AICommitter(object):
 
     def run(self) -> bool:
         logger.info("git diff is: \n {}\n...\n".format(self.diff[:500]))
-        message = str(CommitGeneratorV2(self.diff))
+        message = str(CommitGenerator(self.diff))
         choices = self.get_choices(message)
         self.print_rich_hint(choices)
 
