@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
+import asyncio
 from rich.console import Console
 from rich.text import Text
 import random
 import typing
-import os
 import re
 import subprocess
 import json
@@ -52,6 +52,8 @@ SYSTEM_PROMPT = '''You are a professional coding coach with extensive expertise 
 You have a strong background in teaching and guiding others in best coding practices, ensuring efficient collaboration and code management.
 Your proficiency in Git includes branching, merging, resolving conflicts, and leveraging advanced features to optimize workflow.'''
 
+MODEL = 'gemini-2.0-flash-exp'
+
 
 def shell(command: str) -> str:
     return subprocess.check_output(command, shell=True).decode('utf-8')
@@ -59,16 +61,17 @@ def shell(command: str) -> str:
 
 class CommitGenerator(object):
     def __init__(self, diff: str):
-        self.agent = Agent(
-            'gemini-2.0-flash-exp'
-        )
+        self.agent = Agent(MODEL)
         self.diff = diff
 
-    def __str__(self) -> str:
+    async def generate(self) -> str:
         query = PROMPT_TEMPLATE.format(self.diff)
-        return self.agent.run_sync(
-            query
-        ).data
+        reponse = ''
+        async with self.agent.run_stream(query) as r:
+            async for chunk in r.stream_text(delta=True):
+                reponse += chunk
+                print(chunk, end='', flush=True)
+        return reponse
 
 
 class NoChangesException(Exception):
@@ -104,9 +107,9 @@ class AICommitter(object):
             text = Text(f'{i+1}. {c}', style=color)
             console.print(text)
 
-    def run(self) -> bool:
+    async def run(self) -> bool:
         logger.info("git diff is: \n {}\n...\n".format(self.diff[:500]))
-        message = str(CommitGenerator(self.diff))
+        message = await CommitGenerator(self.diff).generate()
         choices = self.get_choices(message)
         self.print_rich_hint(choices)
 
@@ -124,11 +127,14 @@ class AICommitter(object):
 
 
 def main():
-    try:
-        with AICommitter() as committer:
-            committer.run()
-    except NoChangesException:
-        logger.warning('No changes to commit')
+    async def _exec():
+        try:
+            with AICommitter() as committer:
+                await committer.run()
+        except NoChangesException:
+            logger.warning('No changes to commit')
+
+    asyncio.run(_exec())
 
 
 if __name__ == '__main__':
