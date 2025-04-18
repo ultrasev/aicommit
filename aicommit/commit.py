@@ -57,7 +57,8 @@ def shell(command: str) -> str:
 class CommitGenerator:
     def __init__(self, diff: str):
         self.diff = diff
-        self.api_key = getenv("OPENROUTER_API_KEY")
+        keypath = os.path.expanduser('~/.openai_api_key')
+        self.api_key = getenv("OPENROUTER_API_KEY", keypath)
         if not self.api_key:
             raise ValueError(
                 "OPENROUTER_API_KEY environment variable is not set")
