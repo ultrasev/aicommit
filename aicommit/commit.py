@@ -7,10 +7,10 @@ import os
 import re
 import subprocess
 import json
+import httpx
+import asyncio
 from loguru import logger
-from pydantic_ai.agent import Agent
-from dotenv import load_dotenv
-load_dotenv()
+from codefast import getenv
 
 console = Console()
 
@@ -38,7 +38,6 @@ chore:    构建过程或辅助工具的变动
 }}
 ```
 2. 严格遵守上述要求，不允许在结果中添加其他信息。
-3. 每条 commit 不能是简单的描述更改了哪些文件，要精准的概述 diff 的内容。
 
 git diff 输出：
 ```
@@ -55,42 +54,46 @@ def shell(command: str) -> str:
     return subprocess.check_output(command, shell=True).decode('utf-8')
 
 
-class APIKeyReader(object):
-    def __str__(self):
-        key_name = 'OPENAI_API_KEY'
-        api_key_file = os.path.expanduser('~/.openai_api_key')
-        if not os.path.exists(api_key_file):
-            api_key = input("Please enter your OpenAI API key: ")
-            with open(api_key_file, 'w') as f:
-                f.write(f"{key_name}={api_key}\n")
-            return api_key
-        else:
-            with open(api_key_file) as f:
-                for line in f:
-                    if line.startswith(key_name):
-                        key = line.strip().split('=')[1].strip("'").strip('"')
-                        return key
-
-
-class CommitGenerator(object):
+class CommitGenerator:
     def __init__(self, diff: str):
-        self.agent = Agent(
-            'gemini-1.5-flash'
-        )
         self.diff = diff
+        self.api_key = getenv("OPENROUTER_API_KEY")
+        if not self.api_key:
+            raise ValueError(
+                "OPENROUTER_API_KEY environment variable is not set")
 
-    def __str__(self) -> str:
+    async def __call__(self) -> str:
+        """
+        Generate commit message using OpenRouter API asynchronously
+        """
         query = PROMPT_TEMPLATE.format(self.diff)
-        return self.agent.run_sync(
-            query
-        ).data
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "https://openrouter.ai/api/v1/chat/completions",
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {self.api_key}"
+                },
+                json={
+                    "model": "google/gemini-2.0-flash-001",
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": query
+                        }
+                    ]
+                }
+            )
+            response.raise_for_status()
+            return response.json()["choices"][0]["message"]["content"]
 
 
 class NoChangesException(Exception):
     pass
 
 
-class AICommitter(object):
+class AICommitter:
     def __init__(self):
         self.diff = shell('git diff --cached')
 
@@ -119,9 +122,10 @@ class AICommitter(object):
             text = Text(f'{i+1}. {c}', style=color)
             console.print(text)
 
-    def run(self) -> bool:
+    async def run(self) -> bool:
         logger.info("git diff is: \n {}\n...\n".format(self.diff[:500]))
-        message = str(CommitGenerator(self.diff))
+        generator = CommitGenerator(self.diff)
+        message = await generator()
         choices = self.get_choices(message)
         self.print_rich_hint(choices)
 
@@ -138,12 +142,16 @@ class AICommitter(object):
             return False
 
 
-def main():
+async def __aicommit():
     try:
         with AICommitter() as committer:
-            committer.run()
+            await committer.run()
     except NoChangesException:
         logger.warning('No changes to commit')
+
+
+def main():
+    asyncio.run(__aicommit())
 
 
 if __name__ == '__main__':
