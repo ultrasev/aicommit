@@ -58,36 +58,101 @@ class CommitGenerator:
     def __init__(self, diff: str):
         self.diff = diff
         keypath = os.path.expanduser('~/.openai_api_key')
-        self.api_key = getenv("OPENROUTER_API_KEY", keypath)
-        if not self.api_key:
+        self.openrouter_api_key = getenv("OPENROUTER_API_KEY", keypath)
+
+        perplexity_keypath = os.path.expanduser('~/.perplexity_api_key')
+        self.perplexity_api_key = getenv("PERPLEXITY_API_KEY", perplexity_keypath)
+
+        if not self.perplexity_api_key and not self.openrouter_api_key:
             raise ValueError(
-                "OPENROUTER_API_KEY environment variable is not set")
+                "Neither PERPLEXITY_API_KEY nor OPENROUTER_API_KEY environment variables are set")
+
+    async def generate_with_perplexity(self, query: str) -> str:
+        """
+        Generate commit message using Perplexity's sonar-pro model
+        """
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.post(
+                    "https://api.perplexity.ai/chat/completions",
+                    headers={
+                        "Content-Type": "application/json",
+                        "Authorization": f"Bearer {self.perplexity_api_key}"
+                    },
+                    json={
+                        "model": "sonar-pro",
+                        "messages": [
+                            {
+                                "role": "system",
+                                "content": SYSTEM_PROMPT
+                            },
+                            {
+                                "role": "user",
+                                "content": query
+                            }
+                        ],
+                        "max_tokens": 800
+                    },
+                    timeout=30.0
+                )
+                response.raise_for_status()
+                return response.json()["choices"][0]["message"]["content"]
+            except (httpx.HTTPError, KeyError, json.JSONDecodeError) as e:
+                logger.error(f"Perplexity API error: {str(e)}")
+                return None
+
+    async def generate_with_openrouter(self, query: str) -> str:
+        """
+        Generate commit message using OpenRouter API with Gemini model
+        """
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.post(
+                    "https://openrouter.ai/api/v1/chat/completions",
+                    headers={
+                        "Content-Type": "application/json",
+                        "Authorization": f"Bearer {self.openrouter_api_key}"
+                    },
+                    json={
+                        "model": "google/gemini-2.0-flash-001",
+                        "messages": [
+                            {
+                                "role": "user",
+                                "content": query
+                            }
+                        ]
+                    },
+                    timeout=30.0
+                )
+                response.raise_for_status()
+                return response.json()["choices"][0]["message"]["content"]
+            except (httpx.HTTPError, KeyError, json.JSONDecodeError) as e:
+                logger.error(f"OpenRouter API error: {str(e)}")
+                raise
 
     async def __call__(self) -> str:
         """
-        Generate commit message using OpenRouter API asynchronously
+        Generate commit message using Perplexity API first,
+        fallback to OpenRouter API if Perplexity fails
         """
         query = PROMPT_TEMPLATE.format(self.diff)
 
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                "https://openrouter.ai/api/v1/chat/completions",
-                headers={
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {self.api_key}"
-                },
-                json={
-                    "model": "google/gemini-2.0-flash-001",
-                    "messages": [
-                        {
-                            "role": "user",
-                            "content": query
-                        }
-                    ]
-                }
-            )
-            response.raise_for_status()
-            return response.json()["choices"][0]["message"]["content"]
+        # Try Perplexity's sonar-pro model first if API key is available
+        if self.perplexity_api_key:
+            logger.info("Trying to generate commit message with Perplexity sonar-pro model")
+            result = await self.generate_with_perplexity(query)
+            if result:
+                logger.info("Successfully generated commit message with Perplexity")
+                return result
+
+            logger.warning("Failed to generate with Perplexity, falling back to OpenRouter")
+
+        # Fallback to OpenRouter's Gemini model
+        if not self.openrouter_api_key:
+            raise ValueError("OPENROUTER_API_KEY is required as fallback but not set")
+
+        logger.info("Generating commit message with OpenRouter Gemini model")
+        return await self.generate_with_openrouter(query)
 
 
 class NoChangesException(Exception):
